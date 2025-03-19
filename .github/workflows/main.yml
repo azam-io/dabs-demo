@@ -39,6 +39,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Step to set up the Databricks CLI
+      - name: Set up Databricks CLI
+        uses: databricks/setup-cli@main
+
       - name: Deploy to Development
         run: databricks bundle deploy --target dev --auto-approve
         env:
