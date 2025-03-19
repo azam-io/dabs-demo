@@ -26,4 +26,4 @@ unzip -o -q "${FILE}.zip"
 chmod +x "${TARGET}/databricks"
 
 # Generate artifact
-echo 'export PATH=$PATH:~/.cache/databricks' >> $BITBUCKET_CLONE_DIR/set_path.sh
+echo 'export PATH=$PATH:~/.cache/databricks' >> $GITHUB_WORKSPACE/set_path.sh
