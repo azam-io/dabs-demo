@@ -20,29 +20,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Cache Databricks CLI
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/databricks
-          key: ${{ runner.os }}-databricks-cli-${{ hashFiles('**/requirements-cicd.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-databricks-cli-
+      # Step to set up the Databricks CLI
+      - name: Set up Databricks CLI
+        uses: databricks/setup-cli@main
 
-      - name: Install dependencies
-        run: |
-          bash ./install.sh
-
-
-      - name: Set path for Databricks CLI
-        run: echo "export PATH=$PATH:$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
+      # Step to validate the asset bundle
       - name: Validate Bundle
-        run: |
-          source $GITHUB_WORKSPACE/set_path.sh
-          databricks --version
-          databricks bundle validate || { echo "Bundle validation failed"; exit 1; }
-
-
+        run: databricks bundle validate || { echo "Bundle validation failed"; exit 1; }
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
   # Deploy to Development for the `develop` branch
   deploy_to_development:
@@ -53,29 +39,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set path for Databricks CLI
-        run: echo "export PATH=$PATH:$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
       - name: Deploy to Development
-        run: |
-          source $GITHUB_WORKSPACE/set_path.sh
-          databricks bundle deploy --target dev --auto-approve
+        run: databricks bundle deploy --target dev --auto-approve
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
   # Deploy to Production for the `main` branch (manual trigger)
-  deploy_to_production:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: production
-      url: https://example.com/production
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  # deploy_to_production:
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main'
+  #   environment:
+  #     name: production
+  #     url: https://example.com/production
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Set path for Databricks CLI
-        run: echo "export PATH=$PATH:$GITHUB_WORKSPACE" >> $GITHUB_ENV
+  #     - name: Set path for Databricks CLI
+  #       run: echo "export PATH=$PATH:$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
-      - name: Deploy to Production (Manual Trigger)
-        run: |
-          source $GITHUB_WORKSPACE/set_path.sh
-          databricks bundle deploy --target prod
+  #     - name: Deploy to Production (Manual Trigger)
+  #       run: |
+  #         source $GITHUB_WORKSPACE/set_path.sh
+  #         databricks bundle deploy --target prod
