@@ -1,0 +1,25 @@
+resources:
+  jobs:
+    dev_dummy_test:
+      name: "dummy_workflow"
+      tasks:
+        - task_key: dummy_task
+          notebook_task:
+            notebook_path: ../src/test.py
+            source: WORKSPACE
+
+targets:
+  dev:
+    resources:
+      jobs:
+        dev_dummy_test:
+          parameters:
+            - name: job_var
+              default: "we are in development"
+  prod:
+    resources:
+      jobs:
+        dev_dummy_test:
+          parameters:
+            - name: job_var
+              default: "we are in production"
