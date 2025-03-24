@@ -1,6 +1,16 @@
+# Development-specific parameters
+dev_parameters: &dev_parameters
+  - name: job_var
+    default: "we are in development"
+
+# Production-specific parameters
+prod_parameters: &prod_parameters
+  - name: job_var
+    default: "we are in production"
+
 resources:
   jobs:
-    dev_dummy_test:
+    dummy_job:
       name: "dummy_workflow"
       tasks:
         - task_key: dummy_task
@@ -12,14 +22,11 @@ targets:
   dev:
     resources:
       jobs:
-        dev_dummy_test:
-          parameters:
-            - name: job_var
-              default: "we are in development"
+        dummy_job:
+          parameters: *dev_parameters
+
   prod:
     resources:
       jobs:
-        dev_dummy_test:
-          parameters:
-            - name: job_var
-              default: "we are in production"
+        dummy_job:
+          parameters: *prod_parameters
