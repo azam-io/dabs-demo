@@ -19,18 +19,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Cache Databricks CLI
+      # Verify requirements.txt exists before proceeding
+      - name: Check for requirements.txt
+        run: |
+          if [ ! -f requirements.txt ]; then
+            echo "Error: requirements.txt file not found!"
+            exit 1
+          fi
+
+      # Cache Python dependencies and Databricks CLI
+      - name: Cache dependencies and CLI
         uses: actions/cache@v3
         with:
           path: |
             ~/.local/bin
             ~/.cache/pip
-          key: cli-cache-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          key: cli-cache-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: cli-cache-${{ runner.os }}-
 
+      # Set up Databricks CLI if cache is not hit
       - name: Set up Databricks CLI
         uses: databricks/setup-cli@main
         if: steps.cache.outputs.cache-hit != 'true'
 
+      # Validate Databricks bundle
       - name: Validate Bundle
         run: databricks bundle validate || { echo "Bundle validation failed"; exit 1; }
         env:
@@ -44,18 +56,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Cache Databricks CLI
+      # Verify requirements.txt exists before proceeding
+      - name: Check for requirements.txt
+        run: |
+          if [ ! -f requirements.txt ]; then
+            echo "Error: requirements.txt file not found!"
+            exit 1
+          fi
+
+      # Cache Python dependencies and Databricks CLI
+      - name: Cache dependencies and CLI
         uses: actions/cache@v3
         with:
           path: |
             ~/.local/bin
             ~/.cache/pip
-          key: cli-cache-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          key: cli-cache-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: cli-cache-${{ runner.os }}-
 
+      # Set up Databricks CLI if cache is not hit
       - name: Set up Databricks CLI
         uses: databricks/setup-cli@main
         if: steps.cache.outputs.cache-hit != 'true'
 
+      # Deploy to development environment
       - name: Deploy to Development
         run: databricks bundle deploy --target dev --auto-approve
         env:
@@ -65,22 +89,36 @@ jobs:
     runs-on: ubuntu-latest
     needs: install_and_test
     if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://example.com/production
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Cache Databricks CLI
+      # Verify requirements.txt exists before proceeding
+      - name: Check for requirements.txt
+        run: |
+          if [ ! -f requirements.txt ]; then
+            echo "Error: requirements.txt file not found!"
+            exit 1
+          fi
+
+      # Cache Python dependencies and Databricks CLI
+      - name: Cache dependencies and CLI
         uses: actions/cache@v3
         with:
           path: |
             ~/.local/bin
             ~/.cache/pip
-          key: cli-cache-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          key: cli-cache-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: cli-cache-${{ runner.os }}-
 
+      # Set up Databricks CLI if cache is not hit
       - name: Set up Databricks CLI
         uses: databricks/setup-cli@main
-        if: steps.cache.outputs.cache-hit != 'true'
 
+      # Deploy to production environment (manual trigger)
       - name: Deploy to Production (Manual Trigger)
         run: databricks bundle deploy --target prod --auto-approve
         env:
